@@ -38,7 +38,7 @@
           <h1 class="leaflet-sidebar-header">
             Consulta por:
             <div class="leaflet-sidebar-close">
-              <i class="fa fa-caret-left"></i>
+              <!-- <i class="fa fa-caret-left"></i> -->
             </div>
           </h1>
           <p>A responsive sidebar for mapping libraries</p>
@@ -48,7 +48,7 @@
           <h1 class="leaflet-sidebar-header">
             Mapas base y Capas
             <div class="leaflet-sidebar-close">
-              <i class="fa fa-caret-left"></i>
+              <!-- <i class="fa fa-caret-left"></i> -->
             </div>
           </h1>
         </div>
@@ -57,7 +57,7 @@
           <h1 class="leaflet-sidebar-header">
             Herramientas
             <div class="leaflet-sidebar-close">
-              <i class="fa fa-caret-left"></i>
+              <!-- <i class="fa fa-caret-left"></i> -->
             </div>
           </h1>
         </div>
@@ -66,14 +66,14 @@
           <h1 class="leaflet-sidebar-header">
             Seccion de usuario
             <div class="leaflet-sidebar-close">
-              <i class="fa fa-caret-left"></i>
+              <!-- <i class="fa fa-caret-left"></i> -->
             </div>
           </h1>
         </div>
       </div>
     </div>
     <!-- Map -->
-    <div id="mapid" class="h-full z-[10]"></div>
+    <div id="mapid" class="h-5/6 z-[10] relative"></div>
   </div>
 </template>
 
@@ -82,12 +82,14 @@ import leaflet from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-sidebar-v2";
 import "leaflet-sidebar-v2/css/leaflet-sidebar.css";
+// import MiniMap from "leaflet-minimap";
+// import LeafletMinimap from "leaflet-minimap";
 import {
   MagnifyingGlassIcon,
   Square3Stack3DIcon,
   WrenchIcon,
   UserIcon,
-} from "@heroicons/vue/24/solid";
+} from "@heroicons/vue/24/outline";
 import { defineComponent, onMounted } from "vue";
 // import axios from "axios";
 
@@ -96,7 +98,9 @@ export default defineComponent({
   components: { MagnifyingGlassIcon, Square3Stack3DIcon, WrenchIcon, UserIcon },
   setup() {
     let mymap;
+    let tilemap;
     let sidebar;
+
     const lat = 3.3682;
     const lon = -76.3854;
     const zoom = 11;
@@ -105,16 +109,28 @@ export default defineComponent({
     //   tab: '<i class="fa fa-gear"></i>',
     //   title: "Your Profile",
     // };
+    const scaleBarOption = {
+      maxWidth: 200,
+      metric: true,
+      imperial: false,
+    };
+    // const miniMapOption = {
+    //   position: "bottomleft",
+    //   width: 200,
+    //   height: 200,
+    // };
 
     const createMap = () => {
       mymap = leaflet.map("mapid").setView([lat, lon], zoom);
-      leaflet
-        .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      tilemap = leaflet.tileLayer(
+        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
           attribution:
             '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
           maxZoom: 18,
-        })
-        .addTo(mymap);
+        }
+      );
+      tilemap.addTo(mymap);
       sidebar = leaflet.control
         .sidebar({
           autopan: false,
@@ -123,6 +139,10 @@ export default defineComponent({
           position: "left",
         })
         .addTo(mymap);
+      leaflet.control.scale(scaleBarOption).addTo(mymap);
+      // MiniMap(tilemap, miniMapOption).addTo(mymap);
+      // let coords = leaflet.latLng();
+      // console.log(coords);
       // sidebar.addPanel(panelContent);
       // sidebar.addPanel({
       //   id: "ghlink",
