@@ -51,6 +51,7 @@
               <!-- <i class="fa fa-caret-left"></i> -->
             </div>
           </h1>
+          <div id="controls-pane" class="object-left-top object-contain"></div>
         </div>
 
         <div class="leaflet-sidebar-pane" id="tools">
@@ -82,55 +83,58 @@ import leaflet from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-sidebar-v2";
 import "leaflet-sidebar-v2/css/leaflet-sidebar.css";
-// import MiniMap from "leaflet-minimap";
-// import LeafletMinimap from "leaflet-minimap";
 import {
   MagnifyingGlassIcon,
   Square3Stack3DIcon,
   WrenchIcon,
   UserIcon,
 } from "@heroicons/vue/24/outline";
-import { defineComponent, onMounted } from "vue";
-// import axios from "axios";
+import useLayers from "@/composables/useLayers";
+import {
+  defineComponent,
+  onMounted,
+  // computed,
+} from "vue";
+// import { useListadoIngenios } from "@/store/listadoIngenios";
 
 export default defineComponent({
   name: "LMap",
-  components: { MagnifyingGlassIcon, Square3Stack3DIcon, WrenchIcon, UserIcon },
+  components: {
+    MagnifyingGlassIcon,
+    Square3Stack3DIcon,
+    WrenchIcon,
+    UserIcon,
+  },
   setup() {
     let mymap;
-    let tilemap;
     let sidebar;
+    let layercontrol;
 
     const lat = 3.3682;
     const lon = -76.3854;
     const zoom = 11;
-    // const panelContent = {
-    //   id: "userinfo",
-    //   tab: '<i class="fa fa-gear"></i>',
-    //   title: "Your Profile",
-    // };
     const scaleBarOption = {
       maxWidth: 200,
       metric: true,
       imperial: false,
     };
-    // const miniMapOption = {
-    //   position: "bottomleft",
-    //   width: 200,
-    //   height: 200,
+    // const panelContent = {
+    //   id: "userinfo",
+    //   tab: '<i class="fa fa-gear"></i>',
+    //   title: "Your Profile",
     // };
 
+    // const listIngenios = useListadoIngenios();
+    // const ingenios = computed(() => listIngenios.ingenios);
+    // console.log(ingenios);
+
     const createMap = () => {
-      mymap = leaflet.map("mapid").setView([lat, lon], zoom);
-      tilemap = leaflet.tileLayer(
-        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-          attribution:
-            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          maxZoom: 18,
-        }
-      );
-      tilemap.addTo(mymap);
+      mymap = leaflet.map("mapid", {
+        center: [lat, lon],
+        zoom: zoom,
+        layers: [useLayers.osm, useLayers.arcsat, useLayers.cenimap],
+      });
+
       sidebar = leaflet.control
         .sidebar({
           autopan: false,
@@ -139,10 +143,22 @@ export default defineComponent({
           position: "left",
         })
         .addTo(mymap);
+
+      layercontrol = leaflet.control
+        .layers(useLayers.baseMaps, useLayers.overlayMaps, {
+          collapsed: false,
+        })
+        .addTo(mymap);
+      const htmlObjectLayers = layercontrol.getContainer();
+      const layerpane = document.getElementById("controls-pane");
+      const setParent = (elemento: any, newParent: any) => {
+        newParent.appendChild(elemento);
+      };
+      console.log(layerpane);
+      setParent(htmlObjectLayers, layerpane);
       leaflet.control.scale(scaleBarOption).addTo(mymap);
-      // MiniMap(tilemap, miniMapOption).addTo(mymap);
-      // let coords = leaflet.latLng();
-      // console.log(coords);
+      // sidebar.addPanel(layercontrol);
+
       // sidebar.addPanel(panelContent);
       // sidebar.addPanel({
       //   id: "ghlink",
