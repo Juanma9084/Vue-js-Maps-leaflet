@@ -4,6 +4,7 @@
 
 <script>
 import LMap from "@/components/LeafletMap.vue";
+
 export default {
   components: {
     LMap,
