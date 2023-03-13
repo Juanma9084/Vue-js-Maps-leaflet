@@ -17,6 +17,7 @@
     "leaflet": "^1.9.3",
     "leaflet-minimap": "^3.6.1",
     "leaflet-sidebar-v2": "^3.2.3",
+    "leaflet-spin": "^1.1.2",
     "pinia": "^2.0.28",
     "postcss": "^7.0.39",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17",

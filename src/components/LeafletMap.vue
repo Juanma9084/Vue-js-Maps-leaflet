@@ -42,84 +42,67 @@
               <!-- <i class="fa fa-caret-left"></i> -->
             </div>
           </h1>
-          <Listbox as="div" v-model="ingenioSelected">
-            <ListboxLabel
+
+          <Combobox as="div" v-model="ingenioSelected">
+            <ComboboxLabel
               class="block text-sm font-medium leading-6 text-gray-900"
-              >Ingenios</ListboxLabel
+              >Ingenios</ComboboxLabel
             >
             <div class="relative mt-2">
-              <ListboxButton
-                class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              <ComboboxInput
+                class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                @change="query = $event.target.value"
+                :display-value="(ingenio) => ingenio?.nombre_ingenio"
+              />
+              <ComboboxButton
+                class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
               >
-                <span class="block truncate">{{
-                  ingenioSelected.nombre_ingenio
-                }}</span>
-                <span
-                  class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
-                >
-                  <ChevronUpDownIcon
-                    class="h-5 w-5 text-gray-400"
-                    aria-hidden="true"
-                  />
-                </span>
-              </ListboxButton>
+                <ChevronUpDownIcon
+                  class="h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
+              </ComboboxButton>
 
-              <transition
-                leave-active-class="transition ease-in duration-100"
-                leave-from-class="opacity-100"
-                leave-to-class="opacity-0"
+              <ComboboxOptions
+                v-if="filteredIngenios.length > 0"
+                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
               >
-                <ListboxOptions
-                  class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                <ComboboxOption
+                  v-for="ingenio in filteredIngenios"
+                  :key="ingenio.id_ingenio"
+                  :value="ingenio"
+                  as="template"
+                  v-slot="{ active, ingenioSelected }"
                 >
-                  <ListboxOption
-                    as="template"
-                    v-for="ingenio in store.ingenios"
-                    :key="ingenio.id_ingenio"
-                    :value="ingenio"
-                    v-slot="{ active, ingenioSelected }"
+                  <li
+                    :class="[
+                      'relative cursor-default select-none py-2 pl-3 pr-9',
+                      active ? 'bg-indigo-600 text-white' : 'text-gray-900',
+                    ]"
                   >
-                    <li
+                    <span
                       :class="[
-                        active ? 'bg-indigo-600 text-white' : 'text-gray-900',
-                        'relative cursor-default select-none py-2 pl-3 pr-9',
+                        'block truncate',
+                        ingenioSelected && 'font-semibold',
                       ]"
                     >
-                      <span
-                        :class="[
-                          ingenioSelected ? 'font-semibold' : 'font-normal',
-                          'block truncate',
-                        ]"
-                        >{{ ingenio.nombre_ingenio }}</span
-                      >
+                      {{ ingenio.nombre_ingenio }}
+                    </span>
 
-                      <span
-                        v-if="ingenioSelected"
-                        :class="[
-                          active ? 'text-white' : 'text-indigo-600',
-                          'absolute inset-y-0 right-0 flex items-center pr-4',
-                        ]"
-                      >
-                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                      </span>
-                    </li>
-                  </ListboxOption>
-                </ListboxOptions>
-              </transition>
+                    <span
+                      v-if="ingenioSelected"
+                      :class="[
+                        'absolute inset-y-0 right-0 flex items-center pr-4',
+                        active ? 'text-white' : 'text-indigo-600',
+                      ]"
+                    >
+                      <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                    </span>
+                  </li>
+                </ComboboxOption>
+              </ComboboxOptions>
             </div>
-          </Listbox>
-
-          <!-- <span>Seleccionado: {{ ingenio.codigo_ingenio }}</span> -->
-
-          <!-- <select v-model="haciendaSelected">
-            <option
-              v-for="hacienda in store.haciendas"
-              :key="hacienda.id_hacienda"
-              :value="hacienda.ing_hda"
-            >
-              {{ hacienda.nombre_hda }}
-            </option>
-          </select> -->
+          </Combobox>
 
           <Combobox as="div" v-model="haciendaSelected">
             <ComboboxLabel
@@ -284,6 +267,7 @@ import leaflet from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-sidebar-v2";
 import "leaflet-sidebar-v2/css/leaflet-sidebar.css";
+import "leaflet-spin";
 import {
   MagnifyingGlassIcon,
   Square3Stack3DIcon,
@@ -292,14 +276,11 @@ import {
 } from "@heroicons/vue/24/outline";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import useLayers from "@/composables/useLayers";
+// import useSaptialQuery from "@/composables/UseSpatialQuery";
 import { onMounted, ref, watch, computed } from "vue";
 import { useListStore } from "@/store/listados";
+import { useGeometryStore } from "@/store/geometrias";
 import {
-  Listbox,
-  ListboxButton,
-  ListboxLabel,
-  ListboxOption,
-  ListboxOptions,
   Combobox,
   ComboboxButton,
   ComboboxInput,
@@ -329,14 +310,25 @@ const scaleBarOption = {
 //   title: "Your Profile",
 // };
 
-const store = useListStore();
-store.ingenios;
+const storeList = useListStore();
+const storeGeo = useGeometryStore();
+storeList.ingenios;
 
 const query = ref("");
+
+const filteredIngenios = computed(() =>
+  query.value === ""
+    ? storeList.ingenios
+    : storeList.ingenios.filter((ingenio) => {
+        return ingenio.nombre_ingenio
+          .toLowerCase()
+          .includes(query.value.toLowerCase());
+      })
+);
 const filteredHaciendas = computed(() =>
   query.value === ""
-    ? store.haciendas
-    : store.haciendas.filter((hacienda) => {
+    ? storeList.haciendas
+    : storeList.haciendas.filter((hacienda) => {
         return hacienda.nombre_hda
           .toLowerCase()
           .includes(query.value.toLowerCase());
@@ -344,8 +336,8 @@ const filteredHaciendas = computed(() =>
 );
 const filteredSuertes = computed(() =>
   query.value === ""
-    ? store.suertes
-    : store.suertes.filter((suerte) => {
+    ? storeList.suertes
+    : storeList.suertes.filter((suerte) => {
         return suerte.suerte.toLowerCase().includes(query.value.toLowerCase());
       })
 );
@@ -403,31 +395,59 @@ const createMap = () => {
   sidebar.removeFrom(mymap);
 };
 
+let capa = leaflet.geoJSON();
+let data = "";
+
+const useSpatialQuery = (map: any, data: any, capa: any) => {
+  map.removeLayer(capa);
+  capa.clearLayers();
+  capa.addData(data);
+  const estilo = { fill: false, color: "#6C0CF0" };
+  capa.setStyle((feature) => {
+    return estilo;
+  });
+  map.addLayer(capa);
+  capa.addTo(map);
+  map.fitBounds(capa.getBounds());
+};
+
 watch(ingenioSelected, async (newValue, oldValue) => {
-  // console.log(ingenioSelected.value);
+  mymap.spin(true);
   console.log(newValue, oldValue);
   if (ingenioSelected.value !== "") {
-    await store.getHaciendas(ingenioSelected.value.codigo_ingenio);
+    await storeList.getHaciendas(ingenioSelected.value.codigo_ingenio);
+    await storeGeo.getIngeniosGeo(ingenioSelected.value.codigo_ingenio);
   }
+  data = storeGeo.ingenios;
+  useSpatialQuery(mymap, data, capa);
+  mymap.spin(false);
 });
 
 watch(haciendaSelected, async () => {
+  mymap.spin(true);
   if (haciendaSelected.value !== "") {
-    await store.getSuertes(haciendaSelected.value.ing_hda);
-    // console.log(haciendaSelected.value);
+    await storeList.getSuertes(haciendaSelected.value.ing_hda);
+    await storeGeo.getHaciendasGeo(haciendaSelected.value.ing_hda);
   }
+  data = storeGeo.haciendas;
+  useSpatialQuery(mymap, data, capa);
+  mymap.spin(false);
 });
+
 watch(suerteSelected, async () => {
+  mymap.spin(true);
   if (suerteSelected.value !== "") {
-    console.log(suerteSelected.value);
+    await storeGeo.getSuertesGeo(
+      suerteSelected.value.ing_hda + suerteSelected.value.suerte
+    );
   }
+  data = storeGeo.suertes;
+  useSpatialQuery(mymap, data, capa);
+  mymap.spin(false);
 });
 
 onMounted(async () => {
-  await store.getIngenios();
-  if (!ingenioSelected.value && store.ingenios) {
-    ingenioSelected.value = store.ingenios[0];
-  }
+  await storeList.getIngenios();
   createMap();
 });
 </script>
