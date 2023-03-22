@@ -275,11 +275,12 @@ import {
   UserIcon,
 } from "@heroicons/vue/24/outline";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
-import useLayers from "@/composables/useLayers";
-// import useSaptialQuery from "@/composables/UseSpatialQuery";
+// import useMaps from "@/composables/useMaps";
 import { onMounted, ref, watch, computed } from "vue";
 import { useListStore } from "@/store/listados";
 import { useGeometryStore } from "@/store/geometrias";
+import { useMapStore } from "@/store/mapa";
+
 import {
   Combobox,
   ComboboxButton,
@@ -289,29 +290,17 @@ import {
   ComboboxOptions,
 } from "@headlessui/vue";
 
-let mymap;
-let sidebar;
-let layercontrol;
-
 const ingenioSelected = ref("");
 const haciendaSelected = ref("");
 const suerteSelected = ref("");
 const lat = 3.3682;
 const lon = -76.4854;
 const zoom = 11;
-const scaleBarOption = {
-  maxWidth: 200,
-  metric: true,
-  imperial: false,
-};
-// const panelContent = {
-//   id: "userinfo",
-//   tab: '<i class="fa fa-gear"></i>',
-//   title: "Your Profile",
-// };
 
 const storeList = useListStore();
 const storeGeo = useGeometryStore();
+const mapStore = useMapStore();
+
 storeList.ingenios;
 
 const query = ref("");
@@ -342,112 +331,53 @@ const filteredSuertes = computed(() =>
       })
 );
 
-const createMap = () => {
-  mymap = leaflet.map("mapid", {
-    center: [lat, lon],
-    zoom: zoom,
-    layers: [useLayers.osm, useLayers.arcsat, useLayers.cenimap],
-  });
-
-  sidebar = leaflet.control
-    .sidebar({
-      autopan: false,
-      closeButton: true,
-      container: "sidebar",
-      position: "left",
-    })
-    .addTo(mymap);
-
-  layercontrol = leaflet.control
-    .layers(useLayers.baseMaps, useLayers.overlayMaps, {
-      collapsed: false,
-    })
-    .addTo(mymap);
-  const htmlObjectLayers = layercontrol.getContainer();
-  const layerpane = document.getElementById("controls-pane");
-  const setParent = (elemento?: HTMLElement, newParent?: HTMLElement) => {
-    newParent.appendChild(elemento);
-  };
-  setParent(htmlObjectLayers, layerpane);
-  leaflet.control.scale(scaleBarOption).addTo(mymap);
-
-  // sidebar.addPanel(panelContent);
-  // sidebar.addPanel({
-  //   id: "ghlink",
-  //   tab: '<i class="fa fa-github"></i>',
-  //   button: "https://github.com/noerw/leaflet-sidebar-v2",
-  // });
-  // sidebar.addPanel({
-  //   id: "click",
-  //   tab: '<i class="fa fa-info"></i>',
-  //   button: function (event) {
-  //     console.log(event);
-  //   },
-  // });
-
-  // sidebar.removePanel("userinfo");
-  // sidebar.disablePanel("userinfo");
-  // sidebar.enablePanel("userinfo");
-  sidebar.open("userinfo");
-  // sidebar.open("home");
-  sidebar.close();
-  sidebar.remove();
-  sidebar.removeFrom(mymap);
-};
-
-let capa = leaflet.geoJSON();
-let data = "";
-
-const useSpatialQuery = (map: any, data: any, capa: any) => {
-  map.removeLayer(capa);
-  capa.clearLayers();
-  capa.addData(data);
-  const estilo = { fill: false, color: "#6C0CF0" };
-  capa.setStyle((feature) => {
-    return estilo;
-  });
-  map.addLayer(capa);
-  capa.addTo(map);
-  map.fitBounds(capa.getBounds());
-};
+let capa: leaflet.GeoJSON = leaflet.geoJSON();
+let data: JSON;
 
 watch(ingenioSelected, async (newValue, oldValue) => {
-  mymap.spin(true);
+  mapStore.spinMap(true);
   console.log(newValue, oldValue);
   if (ingenioSelected.value !== "") {
     await storeList.getHaciendas(ingenioSelected.value.codigo_ingenio);
     await storeGeo.getIngeniosGeo(ingenioSelected.value.codigo_ingenio);
   }
   data = storeGeo.ingenios;
-  useSpatialQuery(mymap, data, capa);
-  mymap.spin(false);
+  mapStore.spatialQuery(mapStore.mymap, data, capa);
+  mapStore.spinMap(false);
 });
 
 watch(haciendaSelected, async () => {
-  mymap.spin(true);
+  mapStore.spinMap(true);
   if (haciendaSelected.value !== "") {
     await storeList.getSuertes(haciendaSelected.value.ing_hda);
     await storeGeo.getHaciendasGeo(haciendaSelected.value.ing_hda);
   }
   data = storeGeo.haciendas;
-  useSpatialQuery(mymap, data, capa);
-  mymap.spin(false);
+  mapStore.spatialQuery(mapStore.mymap, data, capa);
+  mapStore.spinMap(false);
 });
 
 watch(suerteSelected, async () => {
-  mymap.spin(true);
+  mapStore.spinMap(true);
   if (suerteSelected.value !== "") {
     await storeGeo.getSuertesGeo(
       suerteSelected.value.ing_hda + suerteSelected.value.suerte
     );
   }
   data = storeGeo.suertes;
-  useSpatialQuery(mymap, data, capa);
-  mymap.spin(false);
+  mapStore.spatialQuery(mapStore.mymap, data, capa);
+  mapStore.spinMap(false);
 });
 
 onMounted(async () => {
   await storeList.getIngenios();
-  createMap();
+  mapStore.createMap(lat, lon, zoom);
+  // createMap();
 });
 </script>
+
+<style scoped>
+.li {
+  background: white;
+}
+</style>
