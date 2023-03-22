@@ -1,14 +1,19 @@
 <template>
-  <l-map> </l-map>
+  <l-map>
+    <template v-slot:listas>
+      <list-map> </list-map>
+    </template>
+  </l-map>
 </template>
 
 <script lang="ts">
 import LMap from "@/components/LeafletMap.vue";
-// import { mymap, createdMap } from "@/composables/useMaps";
+import listMap from "@/components/ListMap.vue";
 
 export default {
   components: {
     LMap,
+    listMap,
   },
 };
 </script>
