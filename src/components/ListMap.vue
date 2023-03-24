@@ -34,7 +34,7 @@
           Consulta por:
           <div class="leaflet-sidebar-close"></div>
         </h1>
-        <!-- <slot name="listIngenios"> -->
+
         <Combobox as="div" v-model="ingenioSelected">
           <ComboboxLabel
             class="block text-sm font-medium leading-6 text-gray-900"
