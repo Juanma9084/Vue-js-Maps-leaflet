@@ -35,16 +35,16 @@
           <div class="leaflet-sidebar-close"></div>
         </h1>
 
-        <Combobox as="div" v-model="ingenioSelected">
+        <Combobox as="div" v-model="comunaSelected">
           <ComboboxLabel
             class="block text-sm font-medium leading-6 text-gray-900"
-            >Ingenios</ComboboxLabel
+            >Comunas</ComboboxLabel
           >
           <div class="relative mt-2">
             <ComboboxInput
               class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               @change="query = $event.target.value"
-              :display-value="(ingenio) => ingenio?.nombre_ingenio"
+              :display-value="(comuna) => comuna?.id_comuna"
             />
             <ComboboxButton
               class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
@@ -56,15 +56,15 @@
             </ComboboxButton>
 
             <ComboboxOptions
-              v-if="filteredIngenios.length > 0"
+              v-if="filteredComunas.length > 0"
               class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
             >
               <ComboboxOption
-                v-for="ingenio in filteredIngenios"
-                :key="ingenio.id_ingenio"
-                :value="ingenio"
+                v-for="comuna in filteredComunas"
+                :key="comuna.id_comuna"
+                :value="comuna"
                 as="template"
-                v-slot="{ active, ingenioSelected }"
+                v-slot="{ active, comunaSelected }"
               >
                 <li
                   :class="[
@@ -75,14 +75,14 @@
                   <span
                     :class="[
                       'block truncate',
-                      ingenioSelected && 'font-semibold',
+                      comunaSelected && 'font-semibold',
                     ]"
                   >
-                    {{ ingenio.nombre_ingenio }}
+                    {{ comuna.id_comuna }}
                   </span>
 
                   <span
-                    v-if="ingenioSelected"
+                    v-if="comunaSelected"
                     :class="[
                       'absolute inset-y-0 right-0 flex items-center pr-4',
                       active ? 'text-white' : 'text-indigo-600',
@@ -96,16 +96,16 @@
           </div>
         </Combobox>
 
-        <Combobox as="div" v-model="haciendaSelected">
+        <Combobox as="div" v-model="barrioSelected">
           <ComboboxLabel
             class="block text-sm font-medium leading-6 text-gray-900"
-            >Haciendas</ComboboxLabel
+            >Barrios</ComboboxLabel
           >
           <div class="relative mt-2">
             <ComboboxInput
               class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               @change="query = $event.target.value"
-              :display-value="(hacienda) => hacienda?.nombre_hda"
+              :display-value="(barrio) => barrio?.nombre"
             />
             <ComboboxButton
               class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
@@ -117,15 +117,15 @@
             </ComboboxButton>
 
             <ComboboxOptions
-              v-if="filteredHaciendas.length > 0"
+              v-if="filteredBarrios.length > 0"
               class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
             >
               <ComboboxOption
-                v-for="hacienda in filteredHaciendas"
-                :key="hacienda.id_hacienda"
-                :value="hacienda"
+                v-for="barrio in filteredBarrios"
+                :key="barrio.id_barrio"
+                :value="barrio"
                 as="template"
-                v-slot="{ active, haciendaSelected }"
+                v-slot="{ active, barrioSelected }"
               >
                 <li
                   :class="[
@@ -136,14 +136,14 @@
                   <span
                     :class="[
                       'block truncate',
-                      haciendaSelected && 'font-semibold',
+                      barrioSelected && 'font-semibold',
                     ]"
                   >
-                    {{ hacienda.nombre_hda }}
+                    {{ barrio.nombre }}
                   </span>
 
                   <span
-                    v-if="haciendaSelected"
+                    v-if="barrioSelected"
                     :class="[
                       'absolute inset-y-0 right-0 flex items-center pr-4',
                       active ? 'text-white' : 'text-indigo-600',
@@ -157,66 +157,7 @@
           </div>
         </Combobox>
 
-        <Combobox as="div" v-model="suerteSelected">
-          <ComboboxLabel
-            class="block text-sm font-medium leading-6 text-gray-900"
-            >Suertes</ComboboxLabel
-          >
-          <div class="relative mt-2">
-            <ComboboxInput
-              class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              @change="query = $event.target.value"
-              :display-value="(suerte) => suerte?.suerte"
-            />
-            <ComboboxButton
-              class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
-            >
-              <ChevronUpDownIcon
-                class="h-5 w-5 text-gray-400"
-                aria-hidden="true"
-              />
-            </ComboboxButton>
-
-            <ComboboxOptions
-              v-if="filteredSuertes.length > 0"
-              class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-            >
-              <ComboboxOption
-                v-for="suerte in filteredSuertes"
-                :key="suerte.id_suertes"
-                :value="suerte"
-                as="template"
-                v-slot="{ active, suerteSelected }"
-              >
-                <li
-                  :class="[
-                    'relative cursor-default select-none py-2 pl-3 pr-9',
-                    active ? 'bg-indigo-600 text-white' : 'text-gray-900',
-                  ]"
-                >
-                  <span
-                    :class="[
-                      'block truncate',
-                      suerteSelected && 'font-semibold',
-                    ]"
-                  >
-                    {{ suerte.suerte }}
-                  </span>
-
-                  <span
-                    v-if="suerteSelected"
-                    :class="[
-                      'absolute inset-y-0 right-0 flex items-center pr-4',
-                      active ? 'text-white' : 'text-indigo-600',
-                    ]"
-                  >
-                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                  </span>
-                </li>
-              </ComboboxOption>
-            </ComboboxOptions>
-          </div>
-        </Combobox>
+        
       </div>
       <div class="leaflet-sidebar-pane" id="layers">
         <h1 class="leaflet-sidebar-header">
@@ -269,78 +210,53 @@ import {
   UserIcon,
 } from "@heroicons/vue/24/outline";
 
-const ingenioSelected = ref("");
-const haciendaSelected = ref("");
-const suerteSelected = ref("");
+const comunaSelected = ref("");
+const barrioSelected = ref("");
 
 const storeList = useListStore();
 const storeGeo = useGeometryStore();
 const mapStore = useMapStore();
 
-storeList.ingenios;
+storeList.comunas;
 
 const query = ref("");
 
-const filteredIngenios = computed(() =>
+const filteredComunas = computed(() =>
   query.value === ""
-    ? storeList.ingenios
-    : storeList.ingenios.filter((ingenio) => {
-        return ingenio.nombre_ingenio
-          .toLowerCase()
-          .includes(query.value.toLowerCase());
+    ? storeList.comunas
+    : storeList.comunas.filter((comuna) => {
+      return comuna.id_comuna.toLowerCase().includes(query.value.toLowerCase());
       })
 );
-const filteredHaciendas = computed(() =>
+const filteredBarrios = computed(() =>
   query.value === ""
-    ? storeList.haciendas
-    : storeList.haciendas.filter((hacienda) => {
-        return hacienda.nombre_hda
-          .toLowerCase()
-          .includes(query.value.toLowerCase());
-      })
-);
-const filteredSuertes = computed(() =>
-  query.value === ""
-    ? storeList.suertes
-    : storeList.suertes.filter((suerte) => {
-        return suerte.suerte.toLowerCase().includes(query.value.toLowerCase());
+    ? storeList.barrios
+    : storeList.barrios.filter((barrio) => {
+        return barrio.nombre.toLowerCase().includes(query.value.toLowerCase());
       })
 );
 
 let capa: leaflet.GeoJSON = leaflet.geoJSON();
 let data: JSON;
 
-watch(ingenioSelected, async (newValue, oldValue) => {
+watch(comunaSelected, async (newValue, oldValue) => {
   mapStore.spinMap(true);
   console.log(newValue, oldValue);
-  if (ingenioSelected.value !== "") {
-    await storeList.getHaciendas(ingenioSelected.value.codigo_ingenio);
-    await storeGeo.getIngeniosGeo(ingenioSelected.value.codigo_ingenio);
+  if (comunaSelected.value !== "") {
+    await storeList.getBarrios(comunaSelected.value.id_comuna);
+    await storeGeo.getComunasGeo(comunaSelected.value.id_comuna);
   }
-  data = storeGeo.ingenios;
+  data = storeGeo.comunas;
   mapStore.spatialQuery(mapStore.mymap, data, capa);
   mapStore.spinMap(false);
 });
 
-watch(haciendaSelected, async () => {
+watch(barrioSelected, async () => {
   mapStore.spinMap(true);
-  if (haciendaSelected.value !== "") {
-    await storeList.getSuertes(haciendaSelected.value.ing_hda);
-    await storeGeo.getHaciendasGeo(haciendaSelected.value.ing_hda);
+  if (barrioSelected.value !== "") {
+    await storeGeo.getBarriosGeo(barrioSelected.value.id_barrio);
   }
-  data = storeGeo.haciendas;
-  mapStore.spatialQuery(mapStore.mymap, data, capa);
-  mapStore.spinMap(false);
-});
-
-watch(suerteSelected, async () => {
-  mapStore.spinMap(true);
-  if (suerteSelected.value !== "") {
-    await storeGeo.getSuertesGeo(
-      suerteSelected.value.ing_hda + suerteSelected.value.suerte
-    );
-  }
-  data = storeGeo.suertes;
+  data = storeGeo.barrios;
   mapStore.spatialQuery(mapStore.mymap, data, capa);
   mapStore.spinMap(false);
 });

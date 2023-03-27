@@ -3,46 +3,34 @@
 import { defineStore } from 'pinia'
 import ceniApi from '@/services/ceniApi'
 import { ref } from 'vue'
-import type { Ingenios, Haciendas, Suertes } from '@/services/types'
+import type { Comunas, Barrios } from '@/services/types'
 
 export const useListStore = defineStore("list", () => {
-  const ingenios = ref<Ingenios[]>([]);
-  const haciendas = ref<Haciendas[]>([]);
-  const suertes = ref<Suertes[]>([]);
+  const comunas = ref<Comunas[]>([]);
+  const barrios = ref<Barrios[]>([]);
 
-    const getIngenios = async () => {
+    const getComunas = async () => {
     try {
-      const data = await ceniApi.get('listados/ingenios')
-        ingenios.value = data.data
+      const data = await ceniApi.get('listados/comunas')
+      comunas.value = data.data
       }
       catch (error) {
         console.log(error)
     }
   };
-    const getHaciendas = async (codigoIngenio:string) => {
+    const getBarrios = async (codigoComuna:string) => {
     try {
-      const data = await ceniApi.get(`listados/haciendas/?ing=${codigoIngenio}`)
-      haciendas.value = data.data
-      }
-      catch (error) {
-        console.log(error)
-    }
-  };
-    const getSuertes = async (codigoIngenioHacienda:string) => {
-    try {
-      const data = await ceniApi.get(`listados/suertes/?ing_hda=${codigoIngenioHacienda}`)
-      suertes.value = data.data
+      const data = await ceniApi.get(`listados/barrios/?comuna=${codigoComuna}`)
+      barrios.value = data.data
       }
       catch (error) {
         console.log(error)
     }
   };
   return {
-    ingenios,
-    getIngenios,
-    haciendas,
-    getHaciendas,
-    suertes,
-    getSuertes,
+    comunas,
+    getComunas,
+    barrios,
+    getBarrios,
   }
 })

@@ -1,22 +1,15 @@
-interface Ingenios {
-id_ingenio?: number;
-nombre_ingenio?: string;
-codigo_ingenio?: string;
-activo?: string;
+interface Comunas {
+id_comuna?: number;
+area_comuna?: number;
+perimetro_comuna?: number;
 }
 
-interface Haciendas {
-id_hacienda?: number;
-codigo_ingenio?: string;
-ing_hda?: string;
-nombre_hda?: string;
+interface Barrios {
+id_barrio?: number;
+id_comuna?: number;
+nombre?: string;
+area_barrio?: number;
+perimetro_barrio?: number;
 }
 
-interface Suertes {
-id_suertes?: number;
-codigo_ingenio?: string;
-ing_hda?: string;
-suerte?: string;
-}
-
-export type {Ingenios, Haciendas, Suertes}
+export type {Comunas, Barrios}

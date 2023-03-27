@@ -18,10 +18,10 @@ const zoom = 11;
 const storeList = useListStore();
 const mapStore = useMapStore();
 
-storeList.ingenios;
+storeList.comunas;
 
 onMounted(async () => {
-  await storeList.getIngenios();
+  await storeList.getComunas();
   mapStore.createMap(lat, lon, zoom);
 });
 </script>

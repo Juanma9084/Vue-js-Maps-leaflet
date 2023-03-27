@@ -1,6 +1,6 @@
 <template>
   <div id="nav">
-    <router-link to="/">Cenicaña</router-link>
+    <router-link to="/">Santiago de Cali</router-link>
   </div>
   <router-view />
 </template>
